@@ -1,0 +1,4 @@
+To call Prototype handler:
+ - curl -H "Content-Type: application/json" -X POST -d '{"phone" : "+13522817416", "name": "Bob"}' https://b2bs80vdrl.execute-api.us-west-2.amazonaws.com/Prototype/call
+
+
