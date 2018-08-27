@@ -29,8 +29,8 @@ function handleCallPost (event, context) {
     })
   };
 
-  self.addRow = function(obj) {
-    db.addRow(obj).then(function(rowId) {
+  self.addRow = function() {
+    db.addRow(event).then(function(rowId) {
       self.sendAcceptResponse(rowId)
     }).catch((err) => {
       self.sendErrorResponse("Error Adding Row", err)
@@ -39,7 +39,7 @@ function handleCallPost (event, context) {
 
   self.sendAcceptResponse = function(rowId) {
     event.response = {success: true, accepted: true, id: rowId}
-    self.context.done(null, event);
+    context.done(null, event);
   };
 
   self.sendRejectResponse = function(msg) {
@@ -49,6 +49,7 @@ function handleCallPost (event, context) {
   };
 
   self.sendErrorResponse = function(msg, err) {
+    console.log(err)
     event.response = {success: false, message: msg, error: err}
     context.done(null, event);
   };
