@@ -1,22 +1,23 @@
-"use strict";
+"use strict;"
 
-var sdb = require('./sdb')
+var sdb = require('./sdb');
+var db = new sdb();
 var Call = require('./call.js')
 
-exports.handler = function(event, context) {
+exports.handler = function(event, context, callback) {
+  new handleCallGet(event, context, callback)
+}
+
+function handleCallGet (event, context, callback) {
   var self = this;
 
-  self.init = function(event, context) {
-    self.event = event;
-    self.context = context;
-    self.db = new sdb();
+  self.init = function() {
     self.getRows()
   };
 
   self.getRows = function() {
-    self.db.getAllRows().then((data) => {
+    db.getAllRows().then((data) => {
       let rows = []
-      console.log("Items: ", data.Items)
       if (data.hasOwnProperty("Items")) {
         data.Items.forEach((item) => {
           rows.push(new Call(item))
@@ -26,18 +27,18 @@ exports.handler = function(event, context) {
     }).catch((err) => {
       self.sendErrorResponse("error fetching rows", err)
     })
-  }
-
-  self.sendDataResponse = function(data) {
-    self.event.response = data
-    context.done(null, self.event)
-  }
-
-  self.sendErrorResponse = function(msg, err) {
-    console.log(err)
-    self.event.response = {success: false, message: msg, error: err}
-    context.done(null, self.event);
   };
 
-  this.init(event, context);
+  self.sendDataResponse = function(data) {
+    event.response = data
+    callback(null, event)
+  };
+
+  self.sendErrorResponse = function(msg, err) {
+    console.log("error: ", err)
+    event.response = {success: false, message: msg, error: err}
+    callback(null, event)
+  };
+
+  this.init();
 }

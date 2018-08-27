@@ -1,33 +1,36 @@
 "use strict;"
 
 var sdb = require('./sdb')
+var db = new sdb()
 
 exports.handler = function(event, context) {
-  var self = this;
+  new handleCallPost(event, context)
+}
 
-  self.init = function(event, context) {
-    self.event = event;
-    self.context = context;
-    self.db = new sdb();
-    self.validateData(event)
+function handleCallPost (event, context) {
+  var self = this;
+  console.log(self)
+
+  self.init = function() {
+    self.validateData()
   };
 
-  self.validateData = function(obj) {
-    let phoneNumber = obj['phone']
+  self.validateData = function() {
+    let phoneNumber = event['phone']
     // TODO: Require fields
     // TODO: Whitelist fields
     // TODO: Validate phone numbers
 
-    self.db.phoneNumberExists(phoneNumber).then((exists) => {
+    db.phoneNumberExists(phoneNumber).then((exists) => {
       if (exists) { return self.sendRejectResponse("Phone number already exists") }
-      self.addRow(obj)
+      self.addRow()
     }).catch((err) => {
       self.sendErrorResponse("Error Adding Row", err)
     })
   };
 
   self.addRow = function(obj) {
-    this.db.addRow(obj).then(function(rowId) {
+    db.addRow(obj).then(function(rowId) {
       self.sendAcceptResponse(rowId)
     }).catch((err) => {
       self.sendErrorResponse("Error Adding Row", err)
@@ -35,20 +38,20 @@ exports.handler = function(event, context) {
   };
 
   self.sendAcceptResponse = function(rowId) {
-    self.event.response = {success: true, accepted: true, id: rowId}
-    self.context.done(null, self.event);
+    event.response = {success: true, accepted: true, id: rowId}
+    self.context.done(null, event);
   };
 
   self.sendRejectResponse = function(msg) {
-    self.event.response = {success: true, accepted: false, message: msg}
-    context.done(null, self.event);
+    event.response = {success: true, accepted: false, message: msg}
+    console.log(event.response)
+    context.done(null, event);
   };
 
   self.sendErrorResponse = function(msg, err) {
-    console.log(err)
-    self.event.response = {success: false, message: err}
-    context.done(null, self.event);
+    event.response = {success: false, message: msg, error: err}
+    context.done(null, event);
   };
 
-  this.init(event, context);
+  this.init();
 }

@@ -1,16 +1,19 @@
 var
-  aws         = require('aws-sdk')
+  aws         = require('aws-sdk'),
   cuid        = require('cuid'),
   sql         = require('sqlstring');
 
+  aws.config.loadFromPath('aws.credentials.json');
+
+  var simpledb = new aws.SimpleDB({
+    region        : 'US-East',
+    endpoint  : 'https://sdb.amazonaws.com'
+  });
+
+  var sdbDomain = 'nodeCalls'
+
 module.exports = class sdb {
   constructor() {
-    aws.config.loadFromPath('aws.credentials.json');
-    this.simpledb = new aws.SimpleDB({
-      region        : 'US-East',
-      endpoint  : 'https://sdb.amazonaws.com'
-    });
-    this.sdbDomain = 'nodeCalls'
   }
 
   phoneNumberExists(phoneNumber) {
@@ -29,10 +32,9 @@ module.exports = class sdb {
   }
 
   getAllRows(limit = 100) {
-    let ctx = this;
     return  new Promise(function(resolve, reject) {
 
-      let query = sql.format("select * from `" + ctx.sdbDomain + "` limit ?", [limit])
+      let query = sql.format("select * from `" + sdbDomain + "` limit ?", [limit])
       console.log(query)
 
       let params = {
@@ -40,8 +42,9 @@ module.exports = class sdb {
         ConsistentRead: false,
       };
 
-      ctx.simpledb.select(params, function(err, data) {
+      simpledb.select(params, function(err, data) {
         if (err) {
+          console.log("SDB", err)
           reject(err)
         } // an error occurred
         else {
@@ -52,10 +55,9 @@ module.exports = class sdb {
   }
 
   getRowsByPhoneNumber(phone, limit = 100) {
-    let ctx = this;
     return  new Promise(function(resolve, reject) {
 
-      let query = sql.format("select * from `" + ctx.sdbDomain + "` where phone = ? limit ?", [phone, limit])
+      let query = sql.format("select * from `" + sdbDomain + "` where phone = ? limit ?", [phone, limit])
       console.log(query)
 
       let params = {
@@ -64,7 +66,7 @@ module.exports = class sdb {
         //NextToken: 'STRING_VALUE'
       };
 
-      ctx.simpledb.select(params, function(err, data) {
+      simpledb.select(params, function(err, data) {
         if (err) {
           reject(err)
         } // an error occurred
@@ -77,7 +79,6 @@ module.exports = class sdb {
   }
 
   addRow(obj) {
-    let ctx = this
     return new Promise(function(resolve, reject) {
       let rowId = cuid()
       let sdbAttributes   = []
@@ -89,8 +90,8 @@ module.exports = class sdb {
         });
       });
 
-      ctx.simpledb.putAttributes({
-        DomainName    : ctx.sdbDomain,
+      simpledb.putAttributes({
+        DomainName    : sdbDomain,
         ItemName      : rowId,
         Attributes    : sdbAttributes
       }, function(err,awsResp) {
