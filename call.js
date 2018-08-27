@@ -7,6 +7,13 @@ module.exports = class Call {
     });
 
     this.phone = allAttributes.phone
-    this.name = allAttributes.name
+    this.first_name = allAttributes.first_name
+    this.last_name = allAttributes.last_name
+    this.city = allAttributes.city
+    this.state = allAttributes.state
+    this.zip = allAttributes.zip
+    this.url = allAttributes.url
+    this.vendor = allAttributes.vendor
+    this.ip = allAttributes.ip
   }
 }
