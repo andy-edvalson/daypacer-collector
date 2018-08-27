@@ -1,3 +1,5 @@
+"use strict;"
+
 var sdb = require('./sdb')
 
 exports.handler = function(event, context) {

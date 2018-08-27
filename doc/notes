@@ -1,4 +1,9 @@
-To call Prototype handler:
+To setup from scratch:
+ - Add ./aws.credentials.json, looks like: { "accessKeyId": "###", "secretAccessKey": "###", "region": "us-east-1" }
+
+To call Prototype POST Handler:
  - curl -H "Content-Type: application/json" -X POST -d '{"phone" : "+13522817416", "name": "Bob"}' https://b2bs80vdrl.execute-api.us-west-2.amazonaws.com/Prototype/call
 
-
+To test lambdas locally
+ - lambda-local -l lambda_call_post.js -e lambda_call_post_sample_event.json
+ - lambda-local -l lambda_call_list.js -e lambda_call_list_sample_event.json

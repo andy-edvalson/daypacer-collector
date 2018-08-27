@@ -28,6 +28,29 @@ module.exports = class sdb {
     })
   }
 
+  getAllRows(limit = 100) {
+    let ctx = this;
+    return  new Promise(function(resolve, reject) {
+
+      let query = sql.format("select * from `" + ctx.sdbDomain + "` limit ?", [limit])
+      console.log(query)
+
+      let params = {
+        SelectExpression: query, /* required */
+        ConsistentRead: false,
+      };
+
+      ctx.simpledb.select(params, function(err, data) {
+        if (err) {
+          reject(err)
+        } // an error occurred
+        else {
+          resolve(data)       // successful response
+        }
+      })
+    })
+  }
+
   getRowsByPhoneNumber(phone, limit = 100) {
     let ctx = this;
     return  new Promise(function(resolve, reject) {
