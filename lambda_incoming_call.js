@@ -7,8 +7,7 @@ module.exports = class lambda_incoming_call {
   constructor() {}
 
   recordCall(event, context) {
-    let eventInput = (event.query.hasOwnProperty('phone') ? event.query : event.body)
-    let phoneNumber = eventInput.phone
+    let phoneNumber = this.getIncomingParam(event, context, "phone", true)
     // TODO: Require fields
     // TODO: Whitelist fields
     // TODO: Validate phone numbers
@@ -20,41 +19,43 @@ module.exports = class lambda_incoming_call {
   };
 
   addRow(event, context, accepted) {
-    let eventInput = (event.query.hasOwnProperty('phone') ? event.query : event.body)
     var ctx = this;
     event.accepted = (accepted) ? "accepted" : "rejected"
-    if (!accepted) {
-      event.message = "Phone number already exists"
-    }
 
     let newCall = {
-      first_name: eventInput.first_name,
-      last_name: eventInput.last_name,
-      phone: eventInput.phone,
-      city: eventInput.city,
-      state: eventInput.state,
-      zip: eventInput.zip,
-      url: eventInput.url,
-      vendor: eventInput.vendor,
-      ip: eventInput.ip
+      first_name: this.getIncomingParam(event, context, "first_name", true),
+      last_name:  this.getIncomingParam(event, context, "last_name",  true),
+      phone:      this.getIncomingParam(event, context, "phone",      true),
+      city:       this.getIncomingParam(event, context, "city",       true),
+      state:      this.getIncomingParam(event, context, "state",      true),
+      zip:        this.getIncomingParam(event, context, "zip",        true),
+      url:        this.getIncomingParam(event, context, "url",        true),
+      vendor:     this.getIncomingParam(event, context, "vendor",     true),
+      ip:         this.getIncomingParam(event, context, "ip",         true),
     }
 
     db.addRow(newCall).then(function(rowId) {
       return (accepted)
        ? ctx.sendAcceptResponse(event, context, rowId)
-       : ctx.sendRejectResponse(event, context)
+       : ctx.sendRejectResponse(event, context, "Phone number already exists")
     }).catch((err) => {
       this.sendErrorResponse(event, context, "Error Adding Row", err)
     })
   };
+
+  getIncomingParam(event, context, name, required) {
+    let val = event.body[name]
+    if (required && !val) { this.sendRejectResponse(event, context, name + " is required") }
+    return event.body[name] || ''
+  }
 
   sendAcceptResponse(event, context, rowId) {
     event.response = {success: true, accepted: true, id: rowId}
     context.done(null, event);
   };
 
-  sendRejectResponse(event, context) {
-    event.response = {success: true, accepted: false, message: event.message}
+  sendRejectResponse(event, context, message) {
+    event.response = {success: true, accepted: false, message: message}
     context.done(null, event);
   };
 

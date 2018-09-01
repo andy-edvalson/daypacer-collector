@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "2018-08-26T03:35:28Z",
+    "version": "2018-09-01T19:58:08Z",
     "title": "Daypacer Collector"
   },
   "host": "b2bs80vdrl.execute-api.us-west-2.amazonaws.com",
@@ -11,7 +11,29 @@
   ],
   "paths": {
     "/call": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "post": {
+        "consumes": [
+          "application/json",
+          "application/x-www-form-urlencoded"
+        ],
         "produces": [
           "application/json"
         ],

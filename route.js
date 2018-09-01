@@ -10,6 +10,7 @@ var λ = {
 
 exports.handler = function(event, context, callback) {
 
+  console.log("Route Event", event)
   let action = event.action
 
   switch(action) {

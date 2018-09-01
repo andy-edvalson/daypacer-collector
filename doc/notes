@@ -1,8 +1,11 @@
 To setup from scratch:
  - Add ./aws.credentials.json, looks like: { "accessKeyId": "###", "secretAccessKey": "###", "region": "us-east-1" }
 
-To call Prototype POST Handler:
- - curl -H "Content-Type: application/json" -X POST -d '{"phone" : "+13522817416", "name": "Bob"}' https://b2bs80vdrl.execute-api.us-west-2.amazonaws.com/Prototype/call
+To call Prototype POST Handler with a json body:
+ - curl -H "Content-Type: application/json" -X POST -d '{"phone" : "+13522817416", "first_name": "Bob", "last_name": "Jenkins", "city": "Logan", "state": "UT", "zip": "84341", "url": "none", "ip": "myIp", "vendor": "Stubbed Vendor"}' https://b2bs80vdrl.execute-api.us-west-2.amazonaws.com/Prototype/call
+
+ To call Prototype POST Handler with x-url encoded form  body:
+ - curl -H "Content-Type: application/x-www-form-urlencoded" -X POST -d 'phone=+13522817464&first_name=andrew&last_name=edvalson&city=Logan&state=UT&zip=84341&url=someUrl&ip=someIp&vendor=myVendor' https://b2bs80vdrl.execute-api.us-west-2.amazonaws.com/Prototype/call
 
 To call proptype GET Handler:
  - curl https://b2bs80vdrl.execute-api.us-west-2.amazonaws.com/Prototype/call
@@ -10,3 +13,8 @@ To call proptype GET Handler:
 To test lambdas locally
  - lambda-local -l route.js -e lambda_events/incoming_call.json
  - lambda-local -l route.js -e lambda_events/call_list.json
+
+
+ "params" : {
+#foreach($type in $allParams.keySet())
+    #set($params = $allParams.get($type))
