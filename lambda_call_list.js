@@ -4,18 +4,10 @@ var sdb = require('./sdb');
 var db = new sdb();
 var Call = require('./call.js')
 
-exports.handler = function(event, context, callback) {
-  new handleCallGet(event, context, callback)
-}
+module.exports = class lambda_call_list {
 
-function handleCallGet (event, context, callback) {
-  var self = this;
-
-  self.init = function() {
-    self.getRows()
-  };
-
-  self.getRows = function() {
+  getRows(event, context, callback) {
+    var ctx = this;
     db.getAllRows().then((data) => {
       let rows = []
       if (data.hasOwnProperty("Items")) {
@@ -23,22 +15,21 @@ function handleCallGet (event, context, callback) {
           rows.push(new Call(item))
         })
       }
-      self.sendDataResponse(rows)
+      ctx.sendDataResponse(event, context, callback, rows)
     }).catch((err) => {
-      self.sendErrorResponse("error fetching rows", err)
+      ctx.sendErrorResponse(event, context, callback, "error fetching rows", err)
     })
   };
 
-  self.sendDataResponse = function(data) {
+  sendDataResponse(event, context, callback, data) {
     event.response = data
     callback(null, event)
   };
 
-  self.sendErrorResponse = function(msg, err) {
+  sendErrorResponse(event, context, callback, msg, err) {
     console.log("error: ", err)
     event.response = {success: false, message: msg, error: err}
     callback(null, event)
   };
 
-  this.init();
 }

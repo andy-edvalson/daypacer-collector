@@ -41,7 +41,6 @@ module.exports = class sdb {
         SelectExpression: query, /* required */
         ConsistentRead: false,
       };
-
       simpledb.select(params, function(err, data) {
         if (err) {
           console.log("SDB", err)
@@ -51,13 +50,14 @@ module.exports = class sdb {
           resolve(data)       // successful response
         }
       })
+
     })
   }
 
   getRowsByPhoneNumber(phone, limit = 100) {
     return  new Promise(function(resolve, reject) {
 
-      let query = sql.format("select * from `" + sdbDomain + "` where phone = ? limit ?", [phone, limit])
+      let query = sql.format("select * from `" + sdbDomain + "` where phone = ? and accepted = ? limit ?", [phone, 'accepted', limit])
       console.log(query)
 
       let params = {
@@ -68,10 +68,10 @@ module.exports = class sdb {
 
       simpledb.select(params, function(err, data) {
         if (err) {
+          console.log('err')
           reject(err)
         } // an error occurred
         else {
-          console.log(data);
           resolve(data)       // successful response
         }
       })
@@ -89,6 +89,11 @@ module.exports = class sdb {
           Value : obj[anAttributeName]
         });
       });
+
+      sdbAttributes.push({
+        Name: 'date',
+        Value: new Date().toString()
+      })
 
       simpledb.putAttributes({
         DomainName    : sdbDomain,

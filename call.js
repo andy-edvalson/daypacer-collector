@@ -15,5 +15,9 @@ module.exports = class Call {
     this.url = allAttributes.url
     this.vendor = allAttributes.vendor
     this.ip = allAttributes.ip
+    this.accepted = allAttributes.accepted
+    this.message = allAttributes.message
+    this.response = this.accepted + ((this.message) ? ": " + this.message : "")
+    this.date = allAttributes.date
   }
 }
