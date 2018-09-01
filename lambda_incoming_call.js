@@ -7,7 +7,8 @@ module.exports = class lambda_incoming_call {
   constructor() {}
 
   recordCall(event, context) {
-    let phoneNumber = event['phone']
+    let eventInput = (event.query.hasOwnProperty('phone') ? event.query : event.body)
+    let phoneNumber = eventInput.phone
     // TODO: Require fields
     // TODO: Whitelist fields
     // TODO: Validate phone numbers
@@ -19,12 +20,26 @@ module.exports = class lambda_incoming_call {
   };
 
   addRow(event, context, accepted) {
+    let eventInput = (event.query.hasOwnProperty('phone') ? event.query : event.body)
     var ctx = this;
     event.accepted = (accepted) ? "accepted" : "rejected"
     if (!accepted) {
       event.message = "Phone number already exists"
     }
-    db.addRow(event).then(function(rowId) {
+
+    let newCall = {
+      first_name: eventInput.first_name,
+      last_name: eventInput.last_name,
+      phone: eventInput.phone,
+      city: eventInput.city,
+      state: eventInput.state,
+      zip: eventInput.zip,
+      url: eventInput.url,
+      vendor: eventInput.vendor,
+      ip: eventInput.ip
+    }
+
+    db.addRow(newCall).then(function(rowId) {
       return (accepted)
        ? ctx.sendAcceptResponse(event, context, rowId)
        : ctx.sendRejectResponse(event, context)

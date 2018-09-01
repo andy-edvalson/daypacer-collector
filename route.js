@@ -3,12 +3,13 @@
 var lambda_incoming_call = require('./lambda_incoming_call')
 var lambda_call_list = require('./lambda_call_list')
 
-λ = {
+var λ = {
   lambda_incoming_call: undefined,
   lambda_call_list: undefined
 }
 
 exports.handler = function(event, context, callback) {
+
   let action = event.action
 
   switch(action) {
